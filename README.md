@@ -1,196 +1,199 @@
 # gaep
 Guideline adherent evidence-based physiotherapy
 
-## Einleitung
+## Introduction
 
-Die "GAEP" Anwendung (Guideline Adherent Evidence Based Physiotherapy) ist eine innovative Softwarelösung, die speziell entwickelt wurde, um Physiotherapeut_Innen bei der effektiven Nutzung medizinischer Leitlinien zu unterstützen. Durch die Verwendung der fortschrittlichen GPT-Modelle von OpenAI ist GAEP in der Lage, Inhalte aus verschiedenen Leitlinien gezielt zu durchsuchen und nutzerspezifisch zusammenzufassen. Dies geschieht über ein interaktives Frage-Antwort-Dialogsystem, das direkt auf relevante Inhalte der Leitlinien Bezug nimmt und diese prägnant wiedergibt.
+The "GAEP" application (Guideline Adherent Evidence Based Physiotherapy) is an innovative software solution specifically designed to support physiotherapists in the effective use of medical guidelines. Using OpenAI's advanced GPT models, GAEP is able to search and summarize content from different guidelines in a user-specific way. This is done via an interactive question-and-answer dialog system that directly references and succinctly reproduces relevant content from the guidelines.
 
-GAEP stellt eine wertvolle Ressource dar, die darauf abzielt, den Zugang zu und die Anwendung von evidenzbasierten Praktiken in der Physiotherapie zu vereinfachen und zu verbessern, wodurch letztendlich die Patientenversorgung optimiert wird.
+GAEP is a valuable resource that aims to simplify and improve access to and application of evidence-based practice in physiotherapy, ultimately optimizing patient care.
 
-Die Anwendung wurde u.a. mit der Mendix-Plattform entwickelt und steht als Open-Source-Prototyp zur Verfügung. Ziel dieser Dokumentation ist es, einen umfassenden Überblick über die Struktur und Funktionalität der Anwendung zu geben. Dies beinhaltet Details zur Architektur der Software, Anweisungen zur Installation und Einrichtung sowie Hinweise zur alltäglichen Nutzung.
+The application was developed using the Mendix platform, among others, and is available as an open source prototype. The aim of this documentation is to provide a comprehensive overview of the structure and functionality of the application. This includes details on the architecture of the software, instructions for installation and setup as well as information on everyday use.
 
-## Zielgruppe
+Although the application was developed in German and only German guidelines are used, we have decided to provide documentation in English.
 
-Die Anwendung "GAEP" richtet sich hauptsächlich an Physiotherapeut_Innen, die in ihrer täglichen Praxis auf evidenzbasierte Methoden zurückgreifen möchten. Obwohl medizinische Leitlinien in Deutschland primär für Ärzte konzipiert sind und eine wichtige Brücke zwischen Wissenschaft und klinischer Praxis schlagen, können auch Physiotherapeuten erheblich von deren Inhalten profitieren. Leitlinien bieten einen strukturierten Rahmen für physiotherapeutische Behandlungen und dienen als fundierte Argumentationsbasis in Gesprächen mit Patienten.
+## Target group
 
-Allerdings sind diese Leitlinien oft in einer komplexen Fachsprache verfasst, die ohne spezifisches medizinisches Vorwissen schwer zu verstehen sein kann. Dies stellt insbesondere für Fachkräfte außerhalb der ärztlichen Berufsgruppe eine Herausforderung dar. Die GAEP-Anwendung adressiert dieses Problem, indem sie die Komplexität der Informationen reduziert und diese auf konkrete Fachfragen zugeschnitten aggregiert. Durch den Einsatz künstlicher Intelligenz wird nicht nur der Inhalt der Leitlinien präzise zusammengefasst, sondern auch die Sprache auf ein allgemein verständliches Niveau vereinfacht.
+The "GAEP" application is primarily aimed at physiotherapists who wish to use evidence-based methods in their daily practice. Although medical guidelines in Germany are primarily designed for doctors and build an important bridge between science and clinical practice, physiotherapists can also benefit considerably from their content. Guidelines provide a structured framework for physiotherapy treatments and serve as a sound basis for argumentation in discussions with patients.
 
-## Systemübersicht der GAEP-Anwendung
+However, these guidelines are often written in complex technical language that can be difficult to understand without specific medical knowledge. This poses a particular challenge for professionals outside the medical profession. The GAEP application addresses this problem by reducing the complexity of the information and aggregating it in a way that is tailored to specific specialist questions. By using artificial intelligence, not only is the content of the guidelines precisely summarized, but the language is also simplified to a generally understandable level.
 
-1. Benutzerinteraktion: Web-Browser: Der Benutzer interagiert mit der GAEP-Anwendung über einen Web-Browser. Dies ermöglicht eine benutzerfreundliche Oberfläche für den Zugriff auf die Anwendung.
-2. Frontend: GAEP APP (Mendix Server FreeTier): Das Frontend der Anwendung läuft auf einem Mendix Server im FreeTier-Modus. Mendix ermöglicht eine schnelle Entwicklung und Bereitstellung von Web- und mobilen Anwendungen mit geringem Code-Aufwand. Hier verarbeitet die Anwendung Nutzereingaben und stellt die Benutzeroberfläche bereit.
-3. Backend und Datenverarbeitung:
-* FLASK Server (REST API): Der Flask Server dient als Backend der Anwendung und stellt eine REST API zur Verfügung. Über diese API werden Anfragen der GAEP App entgegengenommen und verarbeitet. Der Flask Server agiert als Mittler zwischen der Datenbank und der Anwendung, sowie zwischen der Anwendung und externen AI-Diensten.
-* Guideline Database: Hier werden alle relevanten Daten und Informationen aus medizinischen Leitlinien gespeichert. Der Flask Server greift auf diese Datenbank zu, um spezifische Anfragen zu beantworten oder Daten für die Verarbeitung bereitzustellen.
-5. Integration von künstlicher Intelligenz: GPT-4 (OpenAI API): Die Anwendung nutzt GPT-4, ein fortschrittliches, kostenpflichtiges Modell von OpenAI, um die Inhalte der medizinischen Leitlinien nutzerspezifisch zu analysieren und zusammenzufassen. Der Flask Server sendet Anfragen an die OpenAI API, erhält Antworten und leitet diese zurück an das Frontend, um sie dem Benutzer darzustellen.
+## System overview of the GAEP application
+
+1. user interaction: web browser: The user interacts with the GAEP application via a web browser. This provides a user-friendly interface for accessing the application.
+2. front end: GAEP APP (Mendix Server FreeTier): The front end of the application runs on a Mendix server in FreeTier mode. Mendix enables rapid development and deployment of web and mobile applications with little code effort. This is where the application processes user input and provides the user interface.
+3. backend and data processing:
+* FLASK Server (REST API): The Flask Server serves as the backend of the application and provides a REST API. Requests from the GAEP app are received and processed via this API. The Flask Server acts as an intermediary between the database and the application, as well as between the application and external AI services.
+* Guideline Database: All relevant data and information from medical guidelines are stored here. The Flask Server accesses this database to answer specific queries or provide data for processing.
+5. integration of artificial intelligence: GPT-4 (OpenAI API): The application uses GPT-4, an advanced paid model from OpenAI, to analyze and summarize the content of medical guidelines on a user-specific basis. The Flask server sends requests to the OpenAI API, receives responses and forwards them back to the frontend to be displayed to the user.
 
 ![image](https://github.com/dozwa/gaep/blob/main/grafics/GAEP_architecture.png)
 
-## Datenfluss
-Der Datenfluss beginnt beim Benutzer, der über den Web-Browser Anfragen an die GAEP APP sendet.
-Die GAEP APP leitet diese Anfragen an den Flask Server weiter, der wiederum notwendige Daten aus der Guideline Database abruft oder Anfragen an die OpenAI API sendet.
-Antworten von der OpenAI API werden vom Flask Server empfangen und verarbeitet, bevor sie an das Frontend zurückgeschickt werden, um dem Benutzer die gewünschten Informationen anzuzeigen.
+## Data flow
+The data flow begins with the user, who sends requests to the GAEP APP via the web browser.
+The GAEP APP forwards these requests to the Flask server, which in turn retrieves the necessary data from the Guideline Database or sends requests to the OpenAI API.
+Responses from the OpenAI API are received and processed by the Flask Server before being sent back to the frontend to display the requested information to the user.
 
 ![image](https://github.com/dozwa/gaep/blob/main/grafics/GAEP_dataflow.png)
 
-## Anforderungen für die GAEP-Anwendung
-### Hardware-Anforderungen
-**Benutzergeräte**
-* Kompatibilität: Die Anwendung ist optimiert für die Nutzung auf Laptops und Tablets. Sie funktioniert ebenfalls auf aktuellen Smartphones, wobei die Benutzeroberfläche primär für größere Bildschirme (Tablets, Laptops) konzipiert ist.
-* Mindestanforderungen: Spezifische Mindestanforderungen an die Hardware wurden nicht ermittelt, jedoch wurde die Anwendung erfolgreich auf ca. 4 Jahre alten Android Tablets und aktuellen Smartphones und Laptops getestet, ohne dass Performanceprobleme auftraten.
-Server-Hardware:
+## Requirements for the GAEP application
+### Hardware requirements
+**User devices**
+* Compatibility: The application is optimized for use on laptops and tablets. It also works on current smartphones, although the user interface is primarily designed for larger screens (tablets, laptops).
+* Minimum requirements: Specific minimum hardware requirements have not been identified, however the application has been successfully tested on approximately 4 year old Android tablets and current smartphones and laptops with no performance issues.
+Server hardware:
 
-**Virtualisierte Umgebung** 
-Der Betrieb von Flask Server und SQL-Datenbank wurde auf virtuellen Servern mit folgenden Mindestspezifikationen erfolgreich getestet:
-* Prozessor: zwei Kerne
-* Arbeitsspeicher: 16 GB RAM
+**Virtualized environment** 
+The operation of Flask Server and SQL database was successfully tested on virtual servers with the following minimum specifications:
+* Processor: two cores
+* RAM: 16 GB RAM
 
-### Software-Anforderungen
+### Software requirements
 
-**Betriebssysteme**
-* Client-Geräte: Die Endbenutzer-Webanwendung ist kompatibel mit den Betriebssystemen, die die unten aufgeführten Browser unterstützen.
-* Entwicklungsumgebung (Mendix): Für spezifische Anforderungen zur Mendix Software, insbesondere welche Betriebssysteme für die Bearbeitung des Frontends unterstützt werden, siehe Mendix-Homepage.
+**Operating systems**
+* Client devices: The end-user web application is compatible with the operating systems that support the browsers listed below.
+* Development Environment (Mendix): For specific requirements about the Mendix software, especially which operating systems are supported for editing the front end, see the Mendix homepage.
 
-**Webbrowser**
-Die Webanwendung wurde getestet und ist kompatibel mit:
-* Google Chrome (Version 124.0.6367.62) unter macOS
-* Safari (Version 17.4.1) unter macOS
-* Google Chrome (Version 124) auf iPhone
+**Web browser**
+The web application has been tested and is compatible with:
+* Google Chrome (version 124.0.6367.62) under macOS
+* Safari (version 17.4.1) under macOS
+* Google Chrome (version 124) on iPhone
 
-**Server-Software**
-Die notwendige Software zur Ausführung des Flask-Servers und der SQL-Datenbank wird in einer requirements.txt-Datei spezifiziert, welche alle benötigten Python-Bibliotheken und weitere Abhängigkeiten auflistet. Die Anwendung wurde mit Python 3.9.2 entwickelt.
+**Server software**
+The software required to run the Flask server and the SQL database is specified in a requirements.txt file, which lists all required Python libraries and other dependencies. The application was developed with Python 3.9.2.
 
-### Netzwerkanforderungen
+### Network requirements
 
-**Internetgeschwindigkeit**
-* Empfohlen wird eine Internetverbindung, die den Transfer von JSON-Dateien mit bis zu 2 MB in wenigen Sekunden ermöglicht.
+**Internet speed**
+* An internet connection that allows the transfer of JSON files of up to 2 MB in a few seconds is recommended.
 
-**Netzwerkkonfiguration**
-Firewall-Einstellungen: Folgende Freigaben sind notwendig:
-* Zugriff auf OpenAI-Server
-* Zugriff auf Mendix-Server
-* Portfreigabe für den Flask Server auf Port 5001
+**Network configuration**
+Firewall settings: The following releases are required:
+* Access to OpenAI server
+* Access to Mendix server
+* Port sharing for the Flask server on port 5001
 
-## Kontenanforderungen
-**Mendix-Account**
+## Account requirements
+**Mendix account
 
-Zweck: Ein Mendix-Account ist erforderlich für die Bearbeitung der Mendix-App und für das Deployment auf dem Mendix FreeTier.
-Berechtigungen: Für die Nutzung der Mendix-Plattform sind keine speziellen Berechtigungen oder Rollen innerhalb des Accounts erforderlich.
+Purpose: A Mendix account is required for editing the Mendix app and for deployment on the Mendix FreeTier.
+Authorizations: No special permissions or roles within the account are required to use the Mendix platform.
 
-## Datenschutzanforderungen
+## Data protection requirements
 
-Verarbeitung medizinischer Daten: Die GAEP-Anwendung darf keine personenbezogenen Daten verarbeiten. Dies schließt speziell Patientendaten und andere sensible Informationen aus, um den Datenschutz zu gewährleisten.
+Processing of medical data: The GAEP application must not process any personal data. This specifically excludes patient data and other sensitive information to ensure data privacy.
 
-## Compliance-Anforderungen:
+## Compliance requirements:
 
-DSGVO (Datenschutz-Grundverordnung): Die Anwendung muss die Anforderungen der Europäischen Datenschutz-Grundverordnung erfüllen. Dies beinhaltet die Einhaltung von Datenschutzprinzipien wie Datenminimierung, Zweckbindung und Transparenz.
+GDPR (General Data Protection Regulation): The application must fulfill the requirements of the European General Data Protection Regulation. This includes compliance with data protection principles such as data minimization, purpose limitation and transparency.
 
-## Installationsprozess und Einrichtung der GAEP-Anwendung
-Der Installationsprozess der GAEP-Anwendung umfasst die Einrichtung der SQL-Datenbank, des Flask Servers und der Mendix-App. Hier sind die detaillierten Schritte zur korrekten Installation und Konfiguration:
+## Installation process and setup of the GAEP application
+The installation process of the GAEP application includes the setup of the SQL database, the Flask server and the Mendix app. Here are the detailed steps for correct installation and configuration:
 
-### SQL-Datenbank
-**Einrichten der Datenbank**
-* Richten Sie eine eigene SQL-Datenbank auf einem geeigneten Server ein.
-* Stellen Sie sicher, dass die Datenbankserver-Konfiguration den Anforderungen Ihrer Infrastruktur entspricht.
-**Datenbank initialisieren**
-* Laden Sie das leitlinien.sql File aus dem Repository herunter.
-* Führen Sie das SQL-Script aus, um die Datenbank mit den notwendigen Strukturen und Daten zu befüllen.
+### SQL database
+**Set up the database**
+* Set up your own SQL database on a suitable server.
+* Make sure that the database server configuration meets the requirements of your infrastructure.
+**Initialize database**
+* Download the guidelines.sql file from the repository.
+* Execute the SQL script to populate the database with the necessary structures and data.
 
 ### Flask Server
-**Voraussetzungen installieren**
-* Installieren Sie Python 3.9.2 und die erforderlichen Pakete, wie in der requirements.txt-Datei des Repositories aufgeführt.
-* Laden Sie die Datei Empfehlung_Kreuzschmerz_COPD.xlsx herunter unter auf dem Server hoch.
-* Laden Sie die Datei GAEP_Server.py herunter und auf dem Server in das selbe Verzeichnis hoch (alternativ den Pfad zu dem xlsx File manuell anpassen).
-* Laden Sie die Datei prompt_helper.py herunter und auf dem Server in das selbe Verzeichnis hoch (alternativ den Pfad zu dem xlsx File manuell anpassen).
-**Konfiguration**
-* Konfigurieren Sie die Zugangsdaten für die SQL-Datenbank in der Datei gaep_server.py.
-* Hinterlegen Sie die Zugangsdaten für die OpenAI API ebenfalls in gaep_server.py.
-* Legen Sie die Nutzerdaten für den Zugriff auf den Flask Server in gaep_server.py fest.
-* ggf. den Pfad zu dem xlsx File manuell anpassen in gaep_server.py.
-**OpenAI Modelle konfigurieren**
-Wählen Sie gegebenenfalls die spezifischen Modelle von OpenAI aus (z.B. Embedding Model, Completion Model) und aktualisieren Sie diese bei Bedarf in gaep_server.py.
+**Install prerequisites**
+* Install Python 3.9.2 and the required packages as listed in the requirements.txt file of the repository.
+* Download the file Empfehlung_Kreuzschmerz_COPD.xlsx and upload it to the server.
+* Download the file GAEP_Server.py and upload it to the same directory on the server (alternatively, adjust the path to the xlsx file manually).
+* Download the file prompt_helper.py and upload it to the same directory on the server (alternatively, adjust the path to the xlsx file manually).
+**Configuration**
+* Configure the access data for the SQL database in the gaep_server.py file.
+* Store the access data for the OpenAI API in gaep_server.py as well.
+* Define the user data for access to the Flask server in gaep_server.py.
+* If necessary, manually adjust the path to the xlsx file in gaep_server.py.
+Configure **OpenAI models**
+If necessary, select the specific OpenAI models (e.g. Embedding Model, Completion Model) and update them in gaep_server.py if required.
 
-### Mendix-App
-**Konfiguration der Verbindungsdaten**
-* Stellen Sie sicher, dass die Adresse und die Zugangsdaten des Flask Servers in der Mendix-App korrekt eingerichtet sind.
+### Mendix app
+**Configuration of the connection data**
+* Make sure that the address and access data of the Flask server are set up correctly in the Mendix app.
 **Deployment**
-* Deployen Sie die Mendix-App auf einem Mendix Server. Folgen Sie dabei den Anleitungen der Mendix-Plattform, um die App erfolgreich hochzuladen und zu konfigurieren.
+* Deploy the Mendix app on a Mendix server. Follow the instructions of the Mendix platform to successfully upload and configure the app.
 
-## Sicherheit und Datenschutz
+## Security and data protection
 
-### Sicherheitsmaßnahmen
-**Passwortverschlüsselung** 
-Die Kommunikation mit dem Flask Server erfolgt unter Verwendung von Passwortverschlüsselung. Dies hilft, die Sicherheit der übertragenen Daten zu gewährleisten.
-Prototyp-Status: Der aktuelle Entwicklungsstand der GAEP-Anwendung ist als Prototyp definiert. Es sollten zusätzliche Sicherheitsmaßnahmen in Betracht gezogen werden, bevor eine produktive Nutzung erfolgt.
-**Eignung des Flask Servers** 
-Der verwendete Flask Server ist in seiner Standardkonfiguration nicht für den Einsatz in einer Produktionsumgebung gedacht. Für einen Produktiveinsatz sollten robustere und sicherheitsorientierte Serverlösungen oder zusätzliche Sicherheitsschichten in Betracht gezogen werden.
+### Security measures
+**Password encryption 
+Communication with the Flask server is carried out using password encryption. This helps to ensure the security of the transmitted data.
+Prototype status: The current development status of the GAEP application is defined as a prototype. Additional security measures should be considered before productive use.
+**Suitability of the Flask server** 
+The Flask Server used in its standard configuration is not intended for use in a production environment. For production use, more robust and security-oriented server solutions or additional security layers should be considered.
 
-### Datenschutz
-Der Schutz und die Verwendung von Benutzerdaten in der GAEP-Anwendung werden durch folgende Maßnahmen geregelt:
+### Data protection
+The protection and use of user data in the GAEP application is governed by the following measures:
 
-**Datentrennung** 
-Die Architektur des Servers, der die Mendix-App mit der OpenAI-API verbindet, ist so gestaltet, dass keine Nutzerdaten an OpenAI weitergeleitet werden. Dies verhindert, dass sensible oder personenbezogene Daten unbeabsichtigt an externe Dienste übertragen werden.
-**Disclaimer**
-Die Anwenderinnen werden beim Aufruf der Anwendung darauf hingewiesen, dass die Verarbeitung von personenbezogenen Daten mit der Anwendung nicht gestattet ist.
-**Eingeschränkte Datenschutzmaßnahmen** 
-Abgesehen von der oben genannten Datentrennung und dem Disclaimer wurden keine weiteren spezifischen Datenschutzmaßnahmen implementiert. Angesichts der Sensibilität medizinischer Daten ist es empfehlenswert, zusätzliche Datenschutzstrategien zu entwickeln und umzusetzen, insbesondere im Hinblick auf die Einhaltung der Datenschutz-Grundverordnung (DSGVO) und anderer relevanter Datenschutzbestimmungen.
+**Data segregation** 
+The architecture of the server that connects the Mendix app to the OpenAI API is designed in such a way that no user data is forwarded to OpenAI. This prevents sensitive or personal data from being inadvertently transferred to external services.
+**Disclaimer
+When accessing the application, users are informed that the processing of personal data with the application is not permitted.
+**Restricted data protection measures** 
+Apart from the above-mentioned data separation and the disclaimer, no other specific data protection measures have been implemented. Given the sensitivity of medical data, it is recommended to develop and implement additional data protection strategies, especially with regard to compliance with the General Data Protection Regulation (GDPR) and other relevant data protection regulations.
 
-### Empfehlungen für zukünftige Entwicklungen
-Um die Sicherheit und den Datenschutz der GAEP-Anwendung zu verbessern, sollten folgende Maßnahmen in Betracht gezogen werden:
+### Recommendations for future developments
+To improve the security and privacy of the GAEP application, the following measures should be considered:
 
-**Implementierung zusätzlicher Sicherheitsmaßnahmen** 
-Dazu könnten gehören: Einsatz von HTTPS zur Verschlüsselung aller Datenübertragungen, robustere Authentifizierungs- und Autorisierungsmechanismen, und regelmäßige Sicherheitsüberprüfungen.
-**Anpassung an Produktionsstandards** 
-Überarbeitung der Serverkonfiguration und möglicherweise der Migration auf eine Plattform, die für den produktiven Einsatz besser geeignet ist.
-**Datenschutzkonformität** 
-Weiterentwicklung der Datenschutzpraktiken, um sicherzustellen, dass alle personenbezogenen Daten konform mit lokalen und internationalen Datenschutzgesetzen behandelt werden.
+**Implementation of additional security measures** 
+These could include: Use of HTTPS to encrypt all data transmissions, more robust authentication and authorization mechanisms, and regular security audits.
+**Adapting to production standards** 
+Revision of the server configuration and possible migration to a platform that is better suited for production use.
+**Data protection compliance** 
+Further development of data protection practices to ensure that all personal data is handled in compliance with local and international data protection laws.
 
-## Datenbankstruktur
-Die GAEP-Anwendung verwendet eine strukturierte SQL-Datenbank, um medizinische Leitlinien und zugehörige Empfehlungen zu speichern und zu verwalten. Das Datenbankschema, wie im bereitgestellten Diagramm dargestellt, enthält mehrere Tabellen und Beziehungen, die eine detaillierte und geordnete Speicherung der Daten ermöglichen. Hier ist eine Beschreibung der wichtigsten Komponenten dieses Schemas:
+## Database structure
+The GAEP application uses a structured SQL database to store and manage medical guidelines and related recommendations. The database schema, as shown in the diagram provided, contains multiple tables and relationships that allow for detailed and organized storage of data. As mentioned above the development happened in german language therefore some artifacts are still in german - like table and feature names. Here is a description of the main components of this schema:
 
-**Tabelle Empfehlung**
-* ID: Eindeutige Identifikationsnummer.
-* Text: Der Volltext der Empfehlung.
-* Grad: Gibt den Grad der Empfehlung an.
-* Basis: Basis oder Grundlage der Leitlinie.
-* Seite: Die spezifische Seite im Dokument, auf die sich eine Information bezieht.
-* Nummer: Die Nummer der Empfehlung innerhalb der Leitlinie.
-* Oberthema: Das Hauptthema der Empfehlung bspw. Medikamentöse Intervention
-* Zwischenthema: zweite Themenebene
-* Unterthema: dritte Themenebene
-* OT_Text, ZT_Text, UT_Text: Textabschnitte für Oberthema, Zwischenthema und Unterthema.
-* OT_Nummer, ZT_Nummer, UT_Nummer: Numerische Identifikatoren für die Themen.
+**Table "Empfehlung" (engl. Recommendation)**
+* ID: Unique identification number.
+* Text: The full text of the recommendation.
+* Grad: Indicates the grade of the recommendation.
+* Basis: Basis or foundation of the guideline.
+* Seite (engl. Page): The specific page in the document to which the information refers.
+* Nummer (engl. Number): The number of the recommendation within the guideline.
+* Oberthema (engl. Main topic): The main topic of the recommendation, e.g. drug intervention.
+* Zwischenthema (engl. Intermediate topic): second topic level
+* Unterhema (engl. Sub-topic): third topic level
+* OT_Text, ZT_Text, UT_Text: Text sections for top topic, intermediate topic and subtopic.
+* OT_Nummer, ZT_Nummer, UT_Nummer (engl. OT_Number, ZT_Number, UT_Number): Numerical identifiers for the topics.
 
-Die Empfehlungstabelle verbindet spezifische Empfehlungen mit den jeweiligen Themen und bietet sowohl numerische als auch textbasierte Beschreibungen.
+The recommendation table links specific recommendations to the respective topics and provides both numerical and text-based descriptions.
 
-**Tabelle Empfehlungsdetail**
-* ID: Eindeutige Identifikationsnummer.
-* Leitlinie: Referenz auf die Leitlinie, zu der das Detail gehört.
-* Position: Die spezifische Position des Details innerhalb der Leitlinie.
-* Text: Detaillierte Beschreibung des Empfehlungsdetails.
-* Bild: Bildmaterial oder grafische Darstellungen, die zur Empfehlung gehören.
+**Table "Empfehlungsdetail" (engl. detail)**
+* ID: Unique identification number.
+* Leitlinie (engl. Guideline): Reference to the guideline to which the detail belongs.
+* Position: The specific position of the detail within the guideline.
+* Text: Detailed description of the recommendation detail.
+* Bild (engl. Image): Images or graphical representations associated with the recommendation base64 coded.
 
-Die Tabelle Empfehlungsdetail speichert detaillierte Informationen zu spezifischen Aspekten einer Empfehlung und enthält auch visuelle Materialien zur Unterstützung der textbasierten Inhalte.
+The Recommendation Detail table stores detailed information on specific aspects of a recommendation and also contains visual materials to support the text-based content.
 
-**Tabelle Quelle**
-* ID: Eindeutige Identifikationsnummer.
-* Leitlinie: Referenz auf die Leitlinie.
-* Nummer: Die Nummer oder der Identifier der Quelle innerhalb der Leitlinie.
-* Details: Textuelle oder sonstige Details zur Quelle.
-* Link: Ein Web-Link zur Quelle.
+**Table "quelle" (engl. source)**
+* ID: Unique identification number.
+* Leitlinie (engl. Guideline): Reference to the guideline.
+* Number: The number or identifier of the source within the guideline.
+* Details: Textual or other details about the source.
+* Link: A web link to the source.
 
-Die Quellentabelle stellt Informationen zur Verfügung, die den Ursprung und die Grundlage der in den Leitlinien enthaltenen Informationen verifizieren.
+The source table provides information that verifies the origin and basis of the information contained in the guidelines.
 
-**Verbindungen zwischen den Tabellen**
+**Links between the tables**
 
-Die Beziehungen zwischen den Tabellen sind durch Fremdschlüssel definiert, die eine integrierte und konsistente Navigation durch die Daten erlauben. Diese Struktur unterstützt effizient das Abrufen von Daten basierend auf thematischen oder inhaltlichen Verknüpfungen und gewährleistet die Datenintegrität über das gesamte Schema hinweg.
+The relationships between the tables are defined by foreign keys that allow integrated and consistent navigation through the data. This structure efficiently supports the retrieval of data based on thematic or content links and ensures data integrity across the entire schema.
 
 ![image](https://github.com/dozwa/gaep/blob/main/grafics/GAEP_db.png)
 
-## Quellcodedokumentation
+## Source code documentation
 
-Der Quellcode der ist ausführlich in der Python Datei gaep_server.py kommentiert. Auf eine deteillierte Beschreibung wird hier daher verzichtet.
+The source code is commented in detail in the Python file gaep_server.py. A detailed description is therefore omitted here.
 
 ## Support
 
-Fragen zur Anwendung sollten innerhalb dieses Repositories geklärt werden.
+Questions about the application should be answered within this repository.
+
