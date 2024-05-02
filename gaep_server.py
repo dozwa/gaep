@@ -86,7 +86,7 @@ os.makedirs(json_path, exist_ok=True)
 # Vektordatenbank erstellen
 
 # Pfad zur Datenquelle einlesen
-data_path = "/Datenquellen/Empfehlung_Kreuzschmerz_COPD.xlsx"
+data_path = "/Empfehlung_Kreuzschmerz_COPD.xlsx"
 
 # Daten importieren
 df = pd.read_excel("/Datenquellen/Empfehlung_Kreuzschmerz_COPD.xlsx")
