@@ -19,40 +19,40 @@ from langchain import PromptTemplate
 from mysql.connector import errors
 
 
-# API Key für OpenAI einlesen
+# Read API key for OpenAI
 OPENAI_API_KEY = ''
 
-# Festlegen des zu verwendenden GPT-Modells
+# Specify the GPT model to be used
 model = "gpt-4-turbo-preview"
 
-# Benutzername und Passwort für die HTTP-Basisauthentifizierung
+# Username and password for HTTP basic authentication
 USER_01_name = ""
 USER_01_pass = ""
 
 #----------------------------------------------------
-# Logging-Konfiguration
+# Logging configuration
 
-# Loggin Writer Klasse erstellen
+# Create Loggin Writer class
 class LoggingWriter:
     """
-    Eine Klasse, die die Standardausgabe auf einen Logger umleitet.
+    A class that redirects the standard output to a logger.
 
     Args:
-        logger (logging.Logger): Das Logger-Objekt, auf das die Ausgabe umgeleitet wird.
-        level (int, optional): Das Logging-Level, das verwendet werden soll. Standardmäßig logging.INFO.
+        logger (logging.Logger): The logger object to which the output is redirected.
+        level (int, optional): The logging level to be used. By default logging.INFO.
 
     Methods:
-        write(message): Schreibt die Nachricht in den Logger, wenn es sich nicht um ein Zeilenumbruchzeichen handelt.
-        flush(): Eine Methode, die nichts tut, da der Logger keinen Puffer hat, der geleert werden muss.
+        write(message): Writes the message to the logger if it is not a newline character.
+        flush(): A method that does nothing, as the logger has no buffer that needs to be emptied.
     """
 
     def __init__(self, logger, level=logging.INFO):
         """
-        Initialisiert eine Instanz von LoggingWriter.
+        Initializes an instance of LoggingWriter.
 
         Args:
-            logger (logging.Logger): Das Logger-Objekt, auf das die Ausgabe umgeleitet wird.
-            level (int, optional): Das Logging-Level, das verwendet werden soll. Standardmäßig logging.INFO.
+            logger (logging.Logger): The logger object to which the output is redirected.
+            level (int, optional): The logging level to be used. By default logging.INFO.
         """
         self.logger = logger
         self.level = level
@@ -64,52 +64,52 @@ class LoggingWriter:
     def flush(self):
         pass
 
-# Aktuelles Datum und Uhrzeit im Format Jahr-Monat-Tag_Stunde-Minute-Sekunde für das Log erstellen
+# Create current date and time in the format year-month-day_hour-minute-second for the log
 current_time = datetime.now().strftime('%Y-%m-%d')
 
-# Dateinamen für das Log dynamisch generieren
+# Generate file names for the log dynamically
 log_filename = f'gaep_server_{current_time}.log'
 
-# Logging-Konfiguration
+# Logging configuration
 logging.basicConfig(filename=log_filename, level=logging.INFO,
                     format='%(asctime)s %(levelname)s %(name)s %(threadName)s : %(message)s')
 
-# Umlenken der Standardausgabe auf das Logging
+# Redirect the standard output to logging
 sys.stdout = LoggingWriter(logging.getLogger(), logging.INFO)
 
-# Pfad für das Loggen der Anfragen erstellen
+# Create path for logging the requests
 json_path = ("json_logs/")
 os.makedirs(json_path, exist_ok=True)
 
 
 #----------------------------------------------------
-# Vektordatenbank erstellen
+# Create vector database
 
-# Pfad zur Datenquelle einlesen
+# Read path to the data source
 data_path = "/Empfehlung_Kreuzschmerz_COPD.xlsx"
 
-# Daten importieren
+# Import data
 df = pd.read_excel("/Datenquellen/Empfehlung_Kreuzschmerz_COPD.xlsx")
 
-# Daten aufbereiten
+# Prepare data
 documents = df['Empfehlungstext'].tolist() # Liste von Empfehlungstexten
 metadata_columns = [col for col in df.columns if col.startswith("metadata_")] # Liste von Metadaten
 metadatas = df[metadata_columns].to_dict(orient='records') # Liste in Dictionary umwandeln
 ids = df['Ids'].tolist() # Liste von IDs
 
-# In-memory Datenbank erstellen
+# Create in-memory database
 chroma_client = chromadb.Client()
 
-# OpenAI-Embedding Funktion erstellen
+# Create OpenAI embedding function
 openai_ef = embedding_functions.OpenAIEmbeddingFunction(
                 api_key=OPENAI_API_KEY,
                 model_name="text-embedding-3-large"
             )
 
-# Collection erstellen
+# Create collection
 collection = chroma_client.create_collection(name="leitlinien_collection", embedding_function=openai_ef)
 
-# ChromaDB mit Daten füllen
+# Fill ChromaDB with data
 collection.add(
     documents=documents,
     metadatas=metadatas,
@@ -120,9 +120,9 @@ print("Datenbank erstellt, warte auf Anfrage...")
 
 
 #----------------------------------------------------
-# Datenbankverbindung herstellen
+# Establish database connection
 
-# Umgebungsvariable DB_KEY einlesen und in die Variable db_key speichern
+# Read variable DB_KEY and save it in the variable db_key
 db_key = ''
 
 def connect_to_database():
@@ -143,33 +143,33 @@ def connect_to_database():
 
 
 #----------------------------------------------------
-# Funktionen für die Datenverabeitung definieren
+# Define functions for data processing
 
-# Funktion für die Suche in der Datenbank
+# Function for searching the database
 def search_in_db(question, n_results=4, ll=None):
     """
-    Sucht in der Vektor-Datenbank (chroma-db) nach einer Frage und gibt die Suchergebnisse zurück.
+    Searches for a question in the vector database (chroma-db) and returns the search results.
 
     Args:
-        question (str): Die Frage, nach der gesucht werden soll.
-        n_results (int, optional): Die Anzahl der zurückgegebenen Suchergebnisse. Standardmäßig 4.
-        ll (str, optional): Die Leitlinie, nach der gefiltert werden soll. Standardmäßig None.
+        question (str): The question to be searched for.
+        n_results (int, optional): The number of search results returned. By default 4.
+        ll (str, optional): The guideline to be used for filtering. None by default.
 
     Returns:
-        list: Eine Liste mit den Suchergebnissen.
+        list: A list with the search results.
     """
     search_results = collection.query(query_texts=question, n_results=n_results, where= {"metadata_Leitlinie" : ll})
-    print("INFO: Suche in der Datenbank erfolgreich.")
-    print("INFO: Ergebnisse:", search_results)
+    print("INFO: Search in the database successful.")
+    print("INFO: Results:", search_results)
     return search_results
 
-# Prompt für die Optimierung der Nutzerfrage definieren
+# Define prompt for optimizing the user question
 def get_optimize_prompt():
     """
-    Gibt das Optimierungsprompt zurück, das für die Nutzerfrage verwendet wird.
+    Returns the optimization prompt used for the user question.
 
     Returns:
-        optimize_prompt (PromptTemplate): Das Optimierungsprompt für die Nutzerfrage.
+        optimize_prompt (PromptTemplate): The optimization prompt for the user question.
     """
     from prompt_helper import prompt_template_optimize
     optimize_prompt = PromptTemplate(template=prompt_template_optimize, input_variables=["context", "question"])
@@ -178,45 +178,45 @@ def get_optimize_prompt():
 # Classification Prompt definieren
 def get_classification_prompt():
     """
-    Gibt die Klassifikations-Prompt zurück.
+    Returns the classification prompt.
 
-    Diese Funktion importiert das Modul `prompt_helper` und verwendet die Vorlage `prompt_template_classification`.
-    Die Funktion erwartet keine Argumente.
+    This function imports the `prompt_helper` module and uses the `prompt_template_classification` template.
+    The function does not expect any arguments.
 
-    Rückgabewert:
-    - classification_prompt: Die Klassifikationsaufforderung als `PromptTemplate`-Objekt.
+    Return value:
+    - classification_prompt: The classification prompt as a `PromptTemplate` object.
     """
     from prompt_helper import prompt_template_classification
     classification_prompt = PromptTemplate(template=prompt_template_classification, input_variables=["context", "question"])
     return classification_prompt
 
-# Analyse Prompt definieren
+# Define analysis prompt
 def get_analyse_prompt():
     """
-    Gibt das Analyse-Prompt zurück.
+    Returns the analysis prompt.
 
-    Das Analyse-Prompt wird aus der Hilfsdatei prompt_helper importiert und verwendet das Template prompt_template_analyse.
-    Es erwartet die Eingabevariablen "context" und "question".
+    The analysis prompt is imported from the help file prompt_helper and uses the template prompt_template_analyse.
+    It expects the input variables "context" and "question".
 
     Returns:
-        analyse_prompt (PromptTemplate): Das Analyse-Prompt.
+        analysis_prompt (PromptTemplate): The analysis prompt.
     """
     from prompt_helper import prompt_template_analyse
     analyse_prompt = PromptTemplate(template=prompt_template_analyse, input_variables=["context", "question"])
     return analyse_prompt
 
-# Zusammenfassung Prompt definieren
+# Define prompt summary
 def get_summarize_prompt(detail=0):
     """
-    Gibt eine Prompt-Vorlage zurück, die für die Zusammenfassung der gegebenen Kontext- und Fragestellung verwendet werden kann.
+    Returns a prompt template that can be used to summarize the given context and question.
 
-    Parameter:
-    detail (int oder bool): Gibt an, ob eine kurze (0 oder False) oder eine ausführliche (andere Werte) Prompt-Vorlage zurückgegeben werden soll.
+    Parameters:
+    detail (int or bool): Specifies whether a short (0 or False) or a detailed (other values) prompt template should be returned.
 
-    Rückgabewert:
-    summarize_prompt (PromptTemplate): Die entsprechende Prompt-Vorlage für die Zusammenfassung.
+    Return value:
+    summarize_prompt (PromptTemplate): The corresponding prompt template for the summary.
 
-    Beispiel:
+    Example:
     summarize_prompt = get_summarize_prompt(detail=1)
     """
 
@@ -229,31 +229,31 @@ def get_summarize_prompt(detail=0):
 
     return summarize_prompt
 
-# LLM-Chain für Optimierung der Nutzerfrage erstellen
+# Create LLM chain for optimization of the user question
 def optimize_question_chain(optimize_prompt):
     """
-    Erstellt die Optimierungskette zur Optimierung der Nutzerfrage basierend auf dem gegebenen Optimierungsprompt.
+    Creates the optimization chain to optimize the user question based on the given optimization prompt.
 
     Args:
-        optimize_prompt (str): Der Optimierungsprompt, der verwendet wird, um die Fragekette zu optimieren.
+        optimize_prompt (str): The optimization prompt used to optimize the question chain.
 
     Returns:
-        LLMChain: Die optimierte Fragekette.
+        LLMChain: The optimized question chain.
     """
     optimize_model = ChatOpenAI(temperature=0.0, model=model)
     optimize_chain = LLMChain(llm=optimize_model, prompt=optimize_prompt)
     return optimize_chain
 
-# LLM-Chain für Klassifizierung erstellen
+# Create LLM chain for classification
 def classify_recommendations_chain(classification_prompt):
     """
-    Erstellt eine Klassifizierungskette für Empfehlungen.
+    Creates a classification chain for recommendations.
 
     Parameters:
-        classification_prompt (str): Der Klassifizierungs-Prompt für die Kette.
+        classification_prompt (str): The classification prompt for the chain.
 
     Returns:
-        LLMChain: Die erstellte Klassifizierungskette.
+        LLMChain: The created classification chain.
     """
     classification_model = ChatOpenAI(temperature=0.0, model=model)
     classification_chain = LLMChain(llm=classification_model, prompt=classification_prompt)
@@ -262,46 +262,46 @@ def classify_recommendations_chain(classification_prompt):
 # LLM-Chain für Analyse erstellen
 def analyse_recommendations_chain(analyse_prompt):
     """
-    Analysiert eine Empfehlungskette basierend auf einem Analyse-Prompt.
+    Analyzes a recommendation chain based on an analysis prompt.
 
     Args:
-        analyse_prompt (str): Der Analyse-Prompt, der verwendet wird, um die Empfehlungskette zu analysieren.
+        analyze_prompt (str): The analysis prompt used to analyze the recommendation chain.
 
     Returns:
-        LLMChain: Die analysierte Empfehlungskette.
+        LLMChain: The analyzed recommendation chain.
 
     """
     analyse_model = ChatOpenAI(temperature=0.0, model=model)
     analyse_chain = LLMChain(llm=analyse_model, prompt=analyse_prompt)
     return analyse_chain
 
-# LLM-Chain für Zusammenfassung erstellen
+# Create LLM chain for summary
 def summarize_recommendations_chain(summarize_prompt):
     """
-    Erstellt eine Zusammenfassungskette für Empfehlungen.
+    Creates a summary chain for recommendations.
 
     Parameters:
-        summarize_prompt (str): Der Text, der als Eingabe für die Zusammenfassung verwendet wird.
+        summarize_prompt (str): The text used as input for the summary.
 
     Returns:
-        LLMChain: Die erstellte Zusammenfassungskette.
+        LLMChain: The summary chain created.
     """
     summarize_model = ChatOpenAI(temperature=0.0, model=model)
     summarize_chain = LLMChain(llm=summarize_model, prompt=summarize_prompt)
     return summarize_chain
 
-# Alle Empfehlungen durchgehen und klassifizieren
+# Go through and classify all recommendations
 def classify_recommendations(results, question, classification_chain):
     """
-    Klassifiziert Empfehlungen basierend auf den Ergebnissen, der gestellten Frage und der Klassifikationskette.
+    Classifies recommendations based on the results, the question asked and the classification chain.
 
     Args:
-        results (dict): Die Ergebnisse, die klassifiziert werden sollen.
-        question (str): Die gestellte Frage.
-        classification_chain (obj): Die Klassifikationskette, die verwendet werden soll.
+        results (dict): The results to be classified.
+        question (str): The question asked.
+        classification_chain (obj): The classification chain to be used.
 
     Returns:
-        dict: Ein Wörterbuch, das die Klassifikationen der Empfehlungen enthält.
+        dict: A dictionary containing the classifications of the recommendations.
     """
     results_classifications = {}
     with concurrent.futures.ThreadPoolExecutor() as executor:
@@ -317,16 +317,16 @@ def classify_recommendations(results, question, classification_chain):
     
     return results_classifications
 
-# Empfehlungslevel neu formatieren, damit diese sortierbar sind
+# Reformat recommendation levels so that they can be sorted
 def sort_level(level):
     """
-    Gibt den sortierbaren Level basierend auf dem gegebenen Level zurück.
+    Returns the sortable level based on the given level.
 
     Args:
-        level (str): Der Level, der sortiert werden soll.
+        level (str): The level to be sorted.
 
     Returns:
-        str: Der sortierte Level.
+        str: The sorted level.
 
     """
     levels = {
@@ -339,16 +339,16 @@ def sort_level(level):
     }
     return levels.get(level, level)
 
-# Sortierbare Reference erstellen
+# Create sortable reference
 def sort_reference(reference):
     """
-    Erstellt eine sortierbare Referenznummer.
+    Creates a sortable reference number.
 
     Args:
-        reference (str): Die zu sortierende Referenznummer.
+        reference (str): The reference number to be sorted.
 
     Returns:
-        int: Die sortierte Referenznummer als Ganzzahl.
+        int: The sorted reference number as an integer.
 
     """
     reference = reference.replace("-", "")
@@ -356,27 +356,27 @@ def sort_reference(reference):
         reference = reference[0]+ "0" + reference[1]
     return int(reference)
 
-# Alle Details der Empfehlungen mit entsprechenden Sensitivät analysieren und zusammenfassen
+# Analyze and summarize all details of the recommendations with appropriate sensitivity
 def analyse_recommendations(search_results, results_classifications, question, analyse_chain, relevance=2):
     """
-    Analysiert und filtert Empfehlungen basierend auf ihrer Relevanz und gibt eine Zusammenfassung der relevanten Empfehlungen zurück.
-    Verwendet concurrent.futures, um die Analyse der Empfehlungen durch Parallelisierung der API Anfragen zu beschleunigen.
+    Analyzes and filters recommendations based on their relevance and returns a summary of relevant recommendations.
+    Uses concurrent.futures to speed up the analysis of recommendations by parallelizing API requests.
 
     Args:
-        search_results (dict): Ein Wörterbuch mit den Suchergebnissen.
-        results_classifications (dict): Ein Wörterbuch mit den Klassifizierungen der Empfehlungen.
-        question (str): Die Frage, auf die die Empfehlungen antworten.
-        analyse_chain (obj): Eine Instanz der Analyse-Kette.
-        relevance (int, optional): Die Sensitivität der Relevanzfilterung. Standardmäßig ist sie auf 2 eingestellt.
+        search_results (dict): A dictionary with the search results.
+        results_classifications (dict): A dictionary with the classifications of the recommendations.
+        question (str): The question to which the recommendations answer.
+        analysis_chain (obj): An instance of the analysis chain.
+        relevance (int, optional): The sensitivity of the relevance filtering. It is set to 2 by default.
 
     Returns:
-        dict: Ein Wörterbuch mit den zusammengefassten relevanten Empfehlungen.
+        dict: A dictionary with the summarized relevant recommendations.
     """
     ids_list = search_results['ids'][0]
     metadatas_list = search_results['metadatas'][0]
     summaries = {}
 
-    # Übersetzen der Sensitivität in eine Liste von Relevanzstufen
+    # Translate the sensitivity into a list of relevance levels
     if relevance == 0:
         relevance = ['HOCH']
     elif relevance == 1:
@@ -384,21 +384,21 @@ def analyse_recommendations(search_results, results_classifications, question, a
     elif relevance == 2:
         relevance = ['HOCH', 'MITTEL', 'NIEDRIG']
 
-    # Entfernen der nicht relevanten Empfehlungen
+    # Remove the irrelevant recommendations
     for key, value in results_classifications.copy().items():
         if value not in relevance:
             del results_classifications[key]
-            print("INFO: Empfehlung", key, "nicht relevant und entfernt.")
+            print("INFO: Recommendation", key, "not relevant and removed.")
 
-    # Finden der relevanten Empfehlungen
+    # Find the relevant recommendations
     def analyse_task(key):
         index = ids_list.index(key) if key in ids_list else -1
         if index != -1:
             context_detail = metadatas_list[index]['metadata_String']
             recommendation_text = metadatas_list[index]['metadata_Empfehlungstext']
-            return key, f"{recommendation_text}; Zusammenfassung der Empfehlungsdetails: {analyse_chain.run(context=context_detail, question=question)}"
+            return key, f"{recommendation_text}; Summary of the recommendation details: {analyse_chain.run(context=context_detail, question=question)}"
         else:
-            print("ID", key, "nicht gefunden")
+            print("ID", key, "not found")
             return key, None
 
     with concurrent.futures.ThreadPoolExecutor() as executor:
@@ -418,52 +418,52 @@ def analyse_recommendations(search_results, results_classifications, question, a
 
     return summaries
 
-# Dict mit den Ids und den Referenznummern erstellen
+# Create Dict with the Ids and the reference numbers
 def create_id_ref_dict(search_results, results_classifications):
     """
-    Erstellt ein Wörterbuch, das die IDs aus den Suchergebnissen mit den entsprechenden Referenzen verknüpft.
+    Creates a dictionary that links the IDs from the search results with the corresponding references.
 
     Args:
-        search_results (dict): Ein Wörterbuch mit den Suchergebnissen, das die IDs und Metadaten enthält.
-        results_classifications (dict): Ein Wörterbuch mit den Klassifikationen der Suchergebnisse.
+        search_results (dict): A dictionary with the search results that contains the IDs and metadata.
+        results_classifications (dict): A dictionary with the classifications of the search results.
 
     Returns:
-        dict: Ein Wörterbuch, das die IDs mit den entsprechenden Referenzen verknüpft.
+        dict: A dictionary that links the IDs with the corresponding references.
     """
     ids_list = search_results['ids'][0]
     metadatas_list = search_results['metadatas'][0]
     ref_dict = {}
 
-    # Finden der relevanten Empfehlungen
+    # Find the relevant recommendations
     for key in results_classifications.keys():
-        # Finden des Indexes
+        # Find the index
         index = ids_list.index(key) if key in ids_list else -1
-        # Zugriff auf das entsprechende 'metadata' Dictionary und Extraktion von 'metadata_Referenz'
+        # Access to the corresponding 'metadata' dictionary and extraction of 'metadata_Reference'
         if index != -1:
             ref_dict[key] = metadatas_list[index]['metadata_Referenz']
-            print("INFO: ID", key, "gefunden")
+            print("INFO: ID", key, "found")
         else:
-            print("ID", key, "nicht gefunden")
+            print("INFO: ID", key, "not found")
     return ref_dict
 
-# Zusammenfassungen der relevanten Empfehlungen zu einer Antwort zusammenfügen
+# Combine summaries of the relevant recommendations into a response
 def summarize_recommendations(summarize_chain, summaries, frage):
     """
-    Zusammenfassung der Empfehlungen.
+    Summary of recommendations.
 
-    Diese Funktion nimmt eine Zusammenfassungskette, eine Sammlung von Zusammenfassungen und eine Frage entgegen.
-    Sie erstellt einen Kontext, der die relevanten Empfehlungen für die Nutzerfrage enthält.
-    Dann wird die Zusammenfassungskette verwendet, um die Frage basierend auf dem Kontext zu beantworten.
+    This function accepts a summary chain, a collection of summaries and a question.
+    It creates a context that contains the relevant recommendations for the user question.
+    It then uses the summary chain to answer the question based on the context.
 
     Args:
-        summarize_chain (objekt): Die Zusammenfassungskette, die verwendet wird, um die Frage zu beantworten.
-        summaries (dict): Eine Sammlung von Zusammenfassungen, wobei der Schlüssel die Referenz und der Wert der Inhalt ist.
-        frage (str): Die Frage, die beantwortet werden soll.
+        summarize_chain (object): The summary chain used to answer the question.
+        summaries (dict): A collection of summaries where the key is the reference and the value is the content.
+        question (str): The question to be answered.
 
     Returns:
-        str: Die Antwort auf die Frage basierend auf dem Kontext und der Zusammenfassungskette.
+        str: The answer to the question based on the context and the summary chain.
     """
-    context = ("Die folgenden Empfehlungen aus der Leitlinie wurden als relevant für die Nutzerfrage identifiziert: ")
+    context = ("The following recommendations from the guideline were identified as relevant to the user question: ")
     n = 1
     for key, value in summaries.items():
         context = context + "Start Empfehlung Nr." + str(n) + "; Referenz: " + key + "; Content: " + summaries[key] + "Ende Empfehlung Nr." + str(n) + ";;;;; "
@@ -473,38 +473,38 @@ def summarize_recommendations(summarize_chain, summaries, frage):
 
 
 #----------------------------------------------------
-# Flask Server erstellen
+# Create Flask server
 
-# Initialisieren der Flask-Anwendung und des HTTP-Basisauthentifizierungsobjekts
+# Initialize the Flask application and the HTTP basic authentication object
 app = Flask(__name__)
 auth = HTTPBasicAuth()
 
-# Generieren des gehashten Passworts für den Benutzer und Speichern in einem Benutzer-Wörterbuch
+# Generate the hashed password for the user and store it in a user dictionary
 users = {
     USER_01_name: generate_password_hash(USER_01_pass)
 }
 
-# Überprüfen des Benutzernamens und Passworts
+# Verify the user name and password
 @auth.verify_password
 def verify_password(username, password):
     """
-    Überprüft den Benutzernamen und das Passwort.
+    Checks the username and password.
 
     Args:
-        username (str): Der Benutzername, der überprüft werden soll.
-        password (str): Das Passwort, das überprüft werden soll.
+        username (str): The username to be verified.
+        password (str): The password to be checked.
 
     Returns:
-        str: Der Benutzername, wenn die Überprüfung erfolgreich ist.
+        str: The user name if the check is successful.
     """
     if username in users and check_password_hash(users.get(username), password):
         return username
 
-# Loggen der Anfrageinformationen
+# Log the request information
 @app.before_request
 def log_request_info():
     """
-    Diese Funktion wird vor jedem eingehenden Request aufgerufen und protokolliert Informationen über den Request.
+    This function is called before each incoming request and logs information about the request.
 
     Parameters:
         None
@@ -517,19 +517,19 @@ def log_request_info():
                  request.date, request.remote_addr, request.headers, data, request.method, request.path)
     print('Timestamp: %s, IP: %s, Headers: %s, Data: %s, Method: %s, Path: %s' % (request.date, request.remote_addr, request.headers, data, request.method, request.path))
 
-# Loggen der Antwortdaten
+# Log the response data
 @app.after_request
 def after_request(response):
     """
-    Diese Funktion wird nach jeder Anfrage aufgerufen und fügt Informationen zum Zeitstempel, der IP-Adresse und der Antwort hinzu.
+    This function is called after each request and adds information about the timestamp, IP address and response.
     
-    :param response: Die HTTP-Antwort des Servers.
-    :return: Die modifizierte HTTP-Antwort.
+    :param response: The HTTP response from the server.
+    :return: The modified HTTP response.
     """
-    response_data = response.get_data(as_text=True) if response.data else 'Keine Daten'
-    logging.info('Zeitstempel: %s, IP: %s, Antwort: %s', request.date, request.remote_addr, response_data)
-    print('Zeitstempel: %s, IP: %s, Antwort: %s' % (request.date, request.remote_addr, response_data))
-    print("Ende der Anfrage ")
+    response_data = response.get_data(as_text=True) if response.data else 'No data'
+    logging.info('Timestamp: %s, IP: %s, response: %s', request.date, request.remote_addr, response_data)
+    print('Timestamp: %s, IP: %s, response: %s' % (request.date, request.remote_addr, response_data))
+    print("End of request ")
     print("-"*30)
     return response
 
@@ -537,71 +537,71 @@ def after_request(response):
 @auth.login_required
 def handle_request():
     """
-    Behandelt die POST-Anfrage an den '/gaep_server' Endpunkt.
-    Überprüft, ob die Anfrage JSON-Daten enthält und alle erforderlichen Input-Features vorhanden sind.
-    Stellt eine Verbindung zur SQL-Datenbank her und führt verschiedene Operationen aus, um eine Antwort auf die Anfrage zu generieren.
-    Erstellt eine Antwort mit den relevanten Informationen und gibt sie zurück.
+    Handles the POST request to the '/gaep_server' endpoint.
+    Checks that the request contains JSON data and that all required input features are present.
+    Connects to the SQL database and performs various operations to generate a response to the request.
+    Creates a response with the relevant information and returns it.
     """
-    # Anfrage-Informationen loggen
-    timestamp = time.time() # Zeitstempel für die Anfrage erstellen
-    request_id = hashlib.sha256(str(timestamp).encode()).hexdigest() # Eindeutige Anfrage-ID erstellen
+    # Log request information
+    timestamp = time.time()     # Create timestamp for the request
+    request_id = hashlib.sha256(str(timestamp).encode()).hexdigest() # Create unique request ID
     print("-"*30)
     print("Anfrage %s erhalten um %s" % (request_id, datetime.fromtimestamp(timestamp).strftime('%Y-%m-%d %H:%M:%S'))) # Anfrage-Informationen in der Konsole ausgeben
           
     if request.method == 'POST':
-        print("Anfrage erhalten: ")
+        print("Request received: ")
         print(request.is_json)
-        # Überprüfen, ob die Anfrage JSON-Daten enthält
+        # Check whether the request contains JSON data
         if not request.is_json:
             return jsonify({"message": "Bad Request: JSON required."}), 400
-        data = request.get_json() # Anfrage-Daten aus dem Request-Objekt extrahieren
-        input_features = ["frage","ll","detail"] # Liste der erforderlichen Input-Features für die Anfrage
-        for feature in input_features: # Überprüfen, ob die Anfrage alle erforderlichen Input-Features enthält
+        data = request.get_json() # Extract request data from the request object
+        input_features = ["frage","ll","detail"] # List of required input features for the request
+        for feature in input_features: # Check whether the request contains all required input features
             if feature not in data:
                 return jsonify({"message": "Bad Request: 'question' and 'leitlinie' are required."}), 400
 
-        # Verbindung herstellen
+        # Establish connection
         mydb = connect_to_database()
-        print("Verbindung mit der SQL Datenbank hergestellt")
+        print("Connection to the SQL database established")
 
-        # Cursor erstellen
+        # Create cursor
         mycursor = mydb.cursor()
 
-        # Nutzerfrage optimieren
+        # Optimize user question
         question_original = data["frage"]
         optimize_prompt = get_optimize_prompt()
         optimize_chain = optimize_question_chain(optimize_prompt)
         optimized_question = optimize_chain.run(context=data["ll"], question=data["frage"])
         data["frage"] = optimized_question
 
-        # Collection auf Basis der Nutzerfrage durchsuchen
+        # Search collection based on the user question
         results = search_in_db(data["frage"], n_results=10, ll=data["ll"])
 
-        # Empfehlungen aus der Suche klassifizieren
+        # Classify recommendations from the search
         classification_prompt = get_classification_prompt()
         classification_chain = classify_recommendations_chain(classification_prompt)
         results_classifications = classify_recommendations(results, data["frage"], classification_chain)
 
-        # Detailtexte der relevanten Empfehlungen analysieren
+        # Analyze detailed texts of the relevant recommendations
         analyse_prompt = get_analyse_prompt()
         analyse_chain = analyse_recommendations_chain(analyse_prompt)
         analysed_recommendation_details = analyse_recommendations(results, results_classifications, data["frage"], analyse_chain)
 
-        # Zusammenfassungen der relevanten Empfehlungen zu einer Antwort zusammenfügen
+        # Combine summaries of the relevant recommendations into a response
         summarize_prompt = get_summarize_prompt(detail=data["detail"])
         summarize_chain = summarize_recommendations_chain(summarize_prompt)
         answer = summarize_recommendations(summarize_chain, analysed_recommendation_details, data["frage"])
 
-        # Dict mit den Ids und den Referenznummern erstellen
+        # Create Dict with the Ids and the reference numbers
         ref_dict = create_id_ref_dict(results, results_classifications)
         
-        # Durchsuche answer nach key aus ref_dict und ersetze ihn durch value
+        # Search answer for key from ref_dict and replace it with value
         for key, value in ref_dict.items():
             answer = answer.replace(key, value)
 
-        # String für die Antwort zusammenstellen
+        # Compose string for the answer
 
-        # Daten für die Antwort vorbereiten
+        # Prepare data for the answer
         answer_data = {
             "optimized_question": str(data["frage"]),
             "generated_answer": str(answer),
@@ -616,11 +616,11 @@ def handle_request():
             "references": []
         }
 
-        # Referenzen zum Antwortstring hinzufügen
+        # Add references to the response string
         
         for key, value in ref_dict.items():
 
-            # Daten aus der Datenbanktabelle tbl_empfehlungen abrufen
+            # Retrieve data from the database table tbl_empfehlungen
             query = ("SELECT tbl_empfehlungen.empfehlungstext, tbl_empfehlungen.empfehlungsgrad, tbl_empfehlungen.empfehlungsbasis, tbl_empfehlungen.seite_url, tbl_empfehlungen.oberthema, tbl_empfehlungen.zwischenthema, tbl_empfehlungen.unterthema\
                             FROM tbl_empfehlungen\
                             WHERE tbl_empfehlungen.Empfehlung_Uid =%s")
@@ -634,28 +634,28 @@ def handle_request():
                 "relevance": str(results_classifications[key]),
                 "sources": [],
                 "details": [],
-                "reference_text": str(reference_info[0][0]), # Empfehlungstext für die Referenz hinzufügen
-                "reference_sort": int(sort_reference(value)), # sortierbare Referenznummer für die Referenz hinzufügen
-                "level": str(reference_info[0][1]), # Empfehlungsgrad für die Referenz hinzufügen
-                "level_sort": str(sort_level(reference_info[0][1])), # sortierbaren Empfehlungsgrad für die Referenz hinzufügen
-                "semantic_sort": 1, # Semantische Sortierung für die Referenz hinzufügen, aktuell fester wert
-                "base": str(reference_info[0][2]), # Empfehlungsbasis für die Referenz hinzufügen
-                "guideline_url": str(reference_info[0][3]), # URL für die Referenz hinzufügen
-                "chapter": str(", ".join([i for i in reference_info[0][4:7] if i != "<NA>"])), # Oberthema für die Referenz hinzufügen
+                "reference_text": str(reference_info[0][0]), # Add recommendation text for the reference
+                "reference_sort": int(sort_reference(value)), # Add sortable reference number for the reference
+                "level": str(reference_info[0][1]), # Add recommendation level for the reference
+                "level_sort": str(sort_level(reference_info[0][1])), # Add sortable recommendation grade for the reference
+                "semantic_sort": 1, # Add semantic sorting for the reference, current fixed value
+                "base": str(reference_info[0][2]), # Add recommendation base for the reference
+                "guideline_url": str(reference_info[0][3]), # Add URL for the reference
+                "chapter": str(", ".join([i for i in reference_info[0][4:7] if i != "<NA>"])), # Add main topic for the reference
                 "sources": [],
                 "details": []
                 }
             
-            # String für das Durchsuchen aller Textinfos erstellen
+            # Create string for searching through all text information
             search_string = reference_data["reference_text"] + \
                             reference_data["base"] + \
                             reference_data["chapter"] + \
                             reference_data["generated_summary"]
 
-            # Quellen für die Empfehlung hinzufügen
+            # Add sources for the recommendation
 
-            # Daten aus der Datenbanktabelle tbl_quellen abrufen
-            # Alle Quellen zu einer Empfehlung abrufen
+            # Retrieve data from the database table tbl_sources
+            # Retrieve all sources for a recommendation
             query = ("SELECT tbl_quellen.nummer, tbl_quellen.details, tbl_quellen.link \
                             FROM tbl_quellen \
                             JOIN tbl_quellen_empfehlungen ON tbl_quellen_empfehlungen.Quelle_Uid = tbl_quellen.Quelle_Uid \
@@ -672,7 +672,7 @@ def handle_request():
                     "url": str(source[2])
                 })
                 
-            # Daten aus der Datenbanktabelle tbl_empfehlungsdetails abrufen
+            # Retrieve data from the database table tbl_recommendation_details
             query = ("SELECT tbl_empfehlungsdetails.empfehlungsdetail_uid, tbl_empfehlungsdetails.ueberschrift, tbl_empfehlungsdetails.detailtext, tbl_empfehlungsdetails.bild\
                             FROM tbl_empfehlungen_empfehlungsdetails \
                             JOIN tbl_empfehlungen ON tbl_empfehlungen_empfehlungsdetails.empfehlung_Uid = tbl_empfehlungen.empfehlung_Uid \
@@ -682,7 +682,7 @@ def handle_request():
             # Ergebnis abrufen
             reference_detail = mycursor.fetchall()
 
-            # Details hinzufügen
+            # Add details
             for detail in reference_detail:
                 detail_data = {
                     "position": int(detail[0].split('/')[1]),
@@ -694,9 +694,9 @@ def handle_request():
 
                 search_string += detail_data["title"] + detail_data["content"]
  
-                # Quellen für die Empfehlungsdetails hinzufügen
+                # Add sources for the recommendation details
 
-                # Daten aus der Datenbanktabelle tbl_empfehlungsdetailsquellen abrufen
+                # Retrieve data from the database table tbl_recommendation_details_sources
 
                 detail_key = detail[0]
                 query = ("SELECT tbl_empfehlungsdetails.empfehlungsdetail_uid, tbl_quellen.nummer, tbl_quellen.details, tbl_quellen.link \
@@ -708,7 +708,7 @@ def handle_request():
                 # Ergebnis abrufen
                 sources = mycursor.fetchall()
 
-                # Quellen für die Details hinzufügen
+                # Add sources for the details
                 for source in sources:
                     detail_data["sources"].append({
                         "source_id": int(source[1]),
@@ -720,26 +720,26 @@ def handle_request():
 
             answer_data["references"].append(reference_data)
 
-            # search_string dem dem reference_data hinzufügen
+            # Add search_string to the reference_data
             reference_data["search_string"] = search_string
 
-        # Antwort-String erstellen
+        # Create response string
         answer_string = json.dumps(answer_data)
 
-        print("-"*10 + "Antwort-String erfolgreich erstellt:")
+        print("-"*10 + "Response string successfully created:")
         print("Answer_string: " + answer_string)
 
         json_data = json.dumps(answer_data) # Konvertieren Sie die Daten in einen JSON-String
 
-        # Schließen Sie die Datenbankverbindung
+        # Close the database connection
         mydb.close()
 
-        # Speichern Sie die Daten in einer Datei, die den Namen der request_id hat
+        # Save the data in a file with the name of the request_id
         timestamp = datetime.fromtimestamp(timestamp).strftime('%Y-%m-%d %H:%M:%S')
         with open(os.path.join(json_path, f'gaep-log_{timestamp}_{request_id[0:10]}.json'), 'w') as file:
             file.write(json_data)
 
-        # Rückgabe der Antwort
+        # Return the answer
         try:
             return answer_data, 200
         except:
@@ -747,7 +747,7 @@ def handle_request():
 
 
 #----------------------------------------------------
-# Flask Server starten
+# Start Flask Server
         
 if __name__ == "__main__":
     # Starten der Flask-Anwendung
