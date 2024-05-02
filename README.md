@@ -209,6 +209,123 @@ The gaep_server.py script serves as a backend server for the GAEP application. T
 * Search and response logic: The script provides functions to optimize queries, search the database for relevant content, classify and analyze the results, and finally return a summarized response based on the queries.
 * Complex data processing: User queries are processed and optimized using LangChain technology and OpenAI models. The results are classified and summarized to provide accurate and relevant information to end users.
 
+## Description of die Mendix App
+
+The following documentation will be structured based on the used journey through the app.
+
+### Prerequisites
+The app has been developed in [Mendix Studio Pro Version 10.6.3](https://marketplace.mendix.com/link/studiopro/). To use the application you will need to create a Mendix account and [download](https://marketplace.mendix.com/link/studiopro/) the correct version of Studio Pro.
+Working with the app requires a basic understandig of the Mendix low code framework. If you have no experience with Mendix, we recommend completing the "Rapid Developer" course in the Mendix academy before following this documentation.
+
+### Module Structure
+The project consists of 4 modules (App 'gaep_0_4', System, base_functionality, gaep).
+The security level of the app is set to Prototype/Demo. Therefore, all newly created pages, microflows, etc. need to be assigned allowed roles (Admin, User) in order to be accessible.
+
+**App 'gaep_0_4'**
+Here you can edit security settings, the navigation-menu, system texts and customize the app styling `[Styling > web]`. 
+Additionally this is where you will find the installed marketplace modules. In the atlas core module you can edit most of the page layouts used in the app. `[Marketplace modules > Atlas_Core > Web]`
+
+**System**
+This module has not been actively modified in the app development.
+
+**base_functionality**
+In this module an app disclaimer and the app tutorial have been configured.
+
+**gaep**
+In this module your will find all core features of the app.  
+
+### Responsive Design
+On many of the pages, certain elements exist twice with different configurations for phone, tablet and pc. These redundant elements make use of the "Hide on [device]" switches under the styling tab in the element properties. 
+The names of these elements will also include the suffix "Phone", "PC" or "Tablet".  This way you can easily find the correct element you want to edit in the Page Explorer.
+
+*Redundant responsive elements will be formatted in italic in this documentation.*
+
+### App // Disclaimer
+**Feature**
+Upon opening the app the default home page is a disclaimer found under: `[base_functionality > Disclaimer]` Here the user needs to check a few switches, such as a cookie agreement, to proceed to the app.
+
+**Implementation**
+**`[App 'gaep_0_4' > Navigation]`**
+Here you can edit the default home page, currently set to the microflow `disclaimer_open`.
+
+**`[base_functionality > Disclaimer]`**
+The `disclaimer_open` microflow creates an >Einwilligung< object in which the value of the switches is stored, and opens the "disclaimer" page. On the page, if all switches are checked the correct *button to proceed to the app* and open the `disclaimer_close` microflow will become visible based on the following expression:
+
+    $currentObject/Cookie = true and $currentObject/Nutzung = true and $currentObject/Projekteinwilligung = true
+    
+The "disclaimer_close" microflow deletes all >Einwilligung< objects and calls the `ACT_gaep_input_open` microflow.
+Additional information about the project is found in the "disclaimer_PopUp" page, called by the textbutton under the second switch.
+
+### App // gaep_input
+**Feature**
+The input page is the functional homepage of the app. Here the user can enter a question and select a guideline, as well as the complexity of the generated answer. Subsequently they can send a request to the server which will generate an answer based on the user input.
+
+**Implementation**
+This feature is implemented in the **`gaep`** module.
+
+The "gaep_input" page can only be accessed through the `ACT_gaep_input_open` microflow because the page parameter requires a >Request< object to be created beforehand.
+ All user input will be stored in the >Request< object
+
+The buttons used to select a guideline change color upon selection through a visibility condition used on the button and a redundant duplicate:
+If "Kreuzschmerz" is selected, the blue "Kreuzschmerz" button will be visible and the white "Kreuzschmerz" button will be invisible and vice versa.
+The button styling is configured using a css class found in the main.scss stylesheet. The selection of the correct guideline is handled in the `ACT_Request_Guideline_[guideline]` microflows.
+The same functionality is used for the >Request/Detail< attribute to input the complexity of the generated answer, calling the `ACT_Request_Detail_[value]` microflows.
+
+The *inputGridPC* contains stylistic brackets, framing the input fields. These are implemented using a custom css class (from the main.scss stylesheet) on two auto-fit columns next to the center column, which contains the input fields.
+
+Upon pressing enter inside the user_question input field or upon clicking the search icon, the `ACT_gaep_output_open` microflow will be called.
+Inside the microflow, two decision widgets check whether the user_question attribute and the guideline attribute and empty. If they are not, the microflow calls a REST service. In that process, the data from the >Request< object will be sent to a remote server and mendix will receive a response that generates a >Response< object. The parameters of the request and response are configured in the "gaep.Import_mapping" and "gaep.Export_mapping" files.
+Finally, the microflow will open the "gaep_output" page.
+
+### App // gaep_output
+**Feature**
+On the output page the user will find 4 sections:
+1. The *app logo*, leading back to the input page
+2. A *top section*, containing the user question and the synoptic answer, generated by the AI.
+3. A *search & sort bar*, to 
+4. A list of all *data sets*, used to answer the user question. These contain a reference from the original guideline, as well as associated information and an AI-generated summary of the detailed data, linked to the reference.
+
+**Implementation**
+This feature is implemented in the **`gaep`** module.
+
+The top section (*headGrid[device]*) is structured similarly to the *inputGridPC* on "gaep_input". Here however, using a data view, certain attribute values from the >Response< object, generated in the `ACT_gaep_output_open` microflow, are displayed. Some metadata like the Request_id is displayed on a seperate popup page ("gaep_output_metadata").
+
+All search and sort functionalities are implemented using widgets from the "List view controls" marketplace module. Some attributes have a duplicate attribute used for sorting. For example >Reference/Reference< might contain the value "5-20". To avoid this object to be listed directly after an object with the value "5-2", a seperate attribute >Reference/Reference_sort< stores the value as an integer (e.g. "520").
+Similarly, an additional redundant attribute >Reference/Sort_string< contains all information from related >Detail< objects to allow the sort widget to account for this information. This is necessary, because the widget does not allow searching through attributes, accessed via 1 to * references.
+
+The reference data sets are displayed inside a list view widget.
+The text widgets displaying the >Reference/Relevance< and >Reference/Level< attributes are each placed inside a tooltip widget from the "React Tooltip" marketplace module. These tooltips explain the meaning of the unicode symbols stored in these attributes. A marketplace widget has been used because the default mendix tooltip runs into formatting issues, as it is limited by the width of the column it is placed inside.
+At the bottom of each list view entry a buttons links to a popup ("sources_reference"), containing all sources associated with the respective reference object. Inside the popup the sources are simply displayed inside a list view, placed inside a data view. Each entry contains a button to open the link to the original source.
+Next to the source button another button opens the pdf file of the original guideline on the exact page where the information inside the >Reference< object is sourced from. This link is also stored in the >Reference< object.
+
+This list view has its on click option configured to show the "details" popup page.
+
+### App // details
+**Feature**
+The dynamically generated detail pages contain all relevant information linked to a specific reference. This information is mostly detailed texts and graphics from the original guideline, arranged in blocks for an easy overview.
+
+**Implementation**
+This feature is implemented in the **`gaep`** module.
+
+At the top of the page you will find a *replica of a list view content block* from the "gaep_output" page. The data from the specific >Reference< object is accessed through a page parameter and a data veiw widget.
+
+Below, a list view widget lists information from all >Detail< objects, related to the given >Reference< object. Because some of these objects contain only a text or an image, visibility conditions on the according widgets check whether the corresponding attribute is empty.
+The images are stored as a string in base64 format. To display the images the "Base64 Image Viewer" marketplace module is used.
+
+Each list view entry contains a button to open a "sources_details" page, listing all sources, referenced in the corresponding >Detail< object. The popup page is identical to the "sources_reference" page, with the only exception being a different page parameter and data source on the list view widget.
+
+### App // search_history
+**Feature**
+Through the navigation bar the user can access a search history, listing all search requests chronologically. From this page the user can access "gaep_output" pages for each request.
+
+**Implementation**
+The search history is implemented utilizing a simple list view with the >Response< entity as a data source. The list view content contains a delete button to allow for easy deletion of a >Response< object. Below a text widget, displaying the user question, another text widget contains information about the complexity of the generated answer. To display a comprehensive text, instead of the boolean value stored in the >Request/Detail< attribute, an expression is used:
+
+    if $currentObject/gaep.Request_Response/gaep.Request/Detail = true then 'detaillierte' else if $currentObject/gaep.Request_Response/gaep.Request/Detail = false then 'kurze' else empty
+
+An on click action on the "elementContainer" is set to open the "gaep_output" page.
+
+
 ## Support
 
 Questions about the application should be answered within this repository.
