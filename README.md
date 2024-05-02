@@ -24,7 +24,7 @@ However, these guidelines are often written in complex technical language that c
 3. backend and data processing:
 * FLASK Server (REST API): The Flask Server serves as the backend of the application and provides a REST API. Requests from the GAEP app are received and processed via this API. The Flask Server acts as an intermediary between the database and the application, as well as between the application and external AI services.
 * Guideline Database: All relevant data and information from medical guidelines are stored here. The Flask Server accesses this database to answer specific queries or provide data for processing.
-5. integration of artificial intelligence: GPT-4 (OpenAI API): The application uses GPT-4, an advanced paid model from OpenAI, to analyze and summarize the content of medical guidelines on a user-specific basis. The Flask server sends requests to the OpenAI API, receives responses and forwards them back to the frontend to be displayed to the user.
+4. integration of artificial intelligence: GPT-4 (OpenAI API): The application uses GPT-4, an advanced paid model from OpenAI, to analyze and summarize the content of medical guidelines on a user-specific basis. The Flask server sends requests to the OpenAI API, receives responses and forwards them back to the frontend to be displayed to the user.
 
 ![image](https://github.com/dozwa/gaep/blob/main/grafics/GAEP_architecture.png)
 
