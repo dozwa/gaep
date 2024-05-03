@@ -277,6 +277,9 @@ Upon pressing enter inside the user_question input field or upon clicking the se
 Inside the microflow, two decision widgets check whether the user_question attribute and the guideline attribute and empty. If they are not, the microflow calls a REST service. In that process, the data from the >Request< object will be sent to a remote server and mendix will receive a response that generates a >Response< object. The parameters of the request and response are configured in the "gaep.Import_mapping" and "gaep.Export_mapping" files.
 Finally, the microflow will open the "gaep_output" page.
 
+*Configuring server routing:*
+Within the "Call REST Service" action, all routing parameters can be configured. Specifically, under General > Location, you can input the server address, and under HTTP Headers > Authentication, you can enter the username and password for server access.
+
 ### App // gaep_output
 **Feature**
 On the output page the user will find 4 sections:
