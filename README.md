@@ -23,7 +23,7 @@ However, these guidelines are often written in complex technical language that c
 2. front end: GAEP APP (Mendix Server FreeTier): The front end of the application runs on a Mendix server in FreeTier mode. Mendix enables rapid development and deployment of web and mobile applications with little code effort. This is where the application processes user input and provides the user interface.
 3. backend and data processing:
 * FLASK Server (REST API): The Flask Server serves as the backend of the application and provides a REST API. Requests from the GAEP app are received and processed via this API. The Flask Server acts as an intermediary between the database and the application, as well as between the application and external AI services.
-* Guideline Database: All relevant data and information from medical guidelines are stored here. The Flask Server accesses this database to answer specific queries or provide data for processing.
+* Guideline Database: All relevant data and information from medical guidelines is stored here. The Flask Server accesses this database to answer specific queries or provide data for processing.
 4. integration of artificial intelligence: GPT-4 (OpenAI API): The application uses GPT-4, an advanced paid model from OpenAI, to analyze and summarize the content of medical guidelines on a user-specific basis. The Flask server sends requests to the OpenAI API, receives responses and forwards them back to the frontend to be displayed to the user.
 
 ![image](https://github.com/dozwa/gaep/blob/main/grafics/GAEP_architecture.png)
@@ -36,13 +36,17 @@ Responses from the OpenAI API are received and processed by the Flask Server bef
 ![image](https://github.com/dozwa/gaep/blob/main/grafics/GAEP_dataflow.png)
 
 ## Requirements for the GAEP application
+
 ### Hardware requirements
+
 **User devices**
+
 * Compatibility: The application is optimized for use on laptops and tablets. It also works on current smartphones, although the user interface is primarily designed for larger screens (tablets, laptops).
 * Minimum requirements: Specific minimum hardware requirements have not been identified, however the application has been successfully tested on approximately 4 year old Android tablets and current smartphones and laptops with no performance issues.
-Server hardware:
 
-**Virtualized environment** 
+**Server hardware**
+
+*Virtualized environment* 
 The operation of Flask Server and SQL database was successfully tested on virtual servers with the following minimum specifications:
 * Processor: two cores
 * RAM: 16 GB RAM
@@ -50,31 +54,37 @@ The operation of Flask Server and SQL database was successfully tested on virtua
 ### Software requirements
 
 **Operating systems**
+
 * Client devices: The end-user web application is compatible with the operating systems that support the browsers listed below.
 * Development Environment (Mendix): For specific requirements about the Mendix software, especially which operating systems are supported for editing the front end, see the Mendix homepage.
 
 **Web browser**
+
 The web application has been tested and is compatible with:
 * Google Chrome (version 124.0.6367.62) under macOS
 * Safari (version 17.4.1) under macOS
 * Google Chrome (version 124) on iPhone
 
 **Server software**
+
 The software required to run the Flask server and the SQL database is specified in a requirements.txt file, which lists all required Python libraries and other dependencies. The application was developed with Python 3.9.2.
 
 ### Network requirements
 
 **Internet speed**
+
 * An internet connection that allows the transfer of JSON files of up to 2 MB in a few seconds is recommended.
 
 **Network configuration**
+
 Firewall settings: The following releases are required:
 * Access to OpenAI server
 * Access to Mendix server
 * Port sharing for the Flask server on port 5001
 
 ## Account requirements
-**Mendix account
+
+**Mendix account**
 
 Purpose: A Mendix account is required for editing the Mendix app and for deployment on the Mendix FreeTier.
 Authorizations: No special permissions or roles within the account are required to use the Mendix platform.
@@ -91,20 +101,28 @@ GDPR (General Data Protection Regulation): The application must fulfill the requ
 The installation process of the GAEP application includes the setup of the SQL database, the Flask server and the Mendix app. Here are the detailed steps for correct installation and configuration:
 
 ### SQL database
+
 **Set up the database**
+
 * Set up your own SQL database on a suitable server.
 * Make sure that the database server configuration meets the requirements of your infrastructure.
+
 **Initialize database**
+
 * Download the guidelines.sql file from the repository.
 * Execute the SQL script to populate the database with the necessary structures and data.
 
 ### Flask Server
+
 **Install prerequisites**
+
 * Install Python 3.9.2 and the required packages as listed in the requirements.txt file of the repository.
 * Download the file Empfehlung_Kreuzschmerz_COPD.xlsx and upload it to the server.
 * Download the file GAEP_Server.py and upload it to the same directory on the server (alternatively, adjust the path to the xlsx file manually).
 * Download the file prompt_helper.py and upload it to the same directory on the server (alternatively, adjust the path to the xlsx file manually).
+  
 **Configuration**
+
 * Configure the access data for the SQL database in the gaep_server.py file.
 * Store the access data for the OpenAI API in gaep_server.py as well.
 * Define the user data for access to the Flask server in gaep_server.py.
@@ -113,41 +131,62 @@ Configure **OpenAI models**
 If necessary, select the specific OpenAI models (e.g. Embedding Model, Completion Model) and update them in gaep_server.py if required.
 
 ### Mendix app
+
 **Configuration of the connection data**
+
 * Make sure that the address and access data of the Flask server are set up correctly in the Mendix app.
+  
 **Deployment**
+
 * Deploy the Mendix app on a Mendix server. Follow the instructions of the Mendix platform to successfully upload and configure the app.
 
 ## Security and data protection
 
 ### Security measures
-**Password encryption 
+
+**Password encryption**
+
 Communication with the Flask server is carried out using password encryption. This helps to ensure the security of the transmitted data.
 Prototype status: The current development status of the GAEP application is defined as a prototype. Additional security measures should be considered before productive use.
+
 **Suitability of the Flask server** 
+
 The Flask Server used in its standard configuration is not intended for use in a production environment. For production use, more robust and security-oriented server solutions or additional security layers should be considered.
 
 ### Data protection
+
 The protection and use of user data in the GAEP application is governed by the following measures:
 
 **Data segregation** 
+
 The architecture of the server that connects the Mendix app to the OpenAI API is designed in such a way that no user data is forwarded to OpenAI. This prevents sensitive or personal data from being inadvertently transferred to external services.
-**Disclaimer
+
+**Disclaimer**
+
 When accessing the application, users are informed that the processing of personal data with the application is not permitted.
+
 **Restricted data protection measures** 
+
 Apart from the above-mentioned data separation and the disclaimer, no other specific data protection measures have been implemented. Given the sensitivity of medical data, it is recommended to develop and implement additional data protection strategies, especially with regard to compliance with the General Data Protection Regulation (GDPR) and other relevant data protection regulations.
 
 ### Recommendations for future developments
+
 To improve the security and privacy of the GAEP application, the following measures should be considered:
 
 **Implementation of additional security measures** 
+
 These could include: Use of HTTPS to encrypt all data transmissions, more robust authentication and authorization mechanisms, and regular security audits.
+
 **Adapting to production standards** 
+
 Revision of the server configuration and possible migration to a platform that is better suited for production use.
+
 **Data protection compliance** 
+
 Further development of data protection practices to ensure that all personal data is handled in compliance with local and international data protection laws.
 
 ## Database structure
+
 The GAEP application uses a structured SQL database to store and manage medical guidelines and related recommendations. The database schema, as shown in the diagram provided, contains multiple tables and relationships that allow for detailed and organized storage of data. As mentioned above the development happened in german language therefore some artifacts are still in german - like table and feature names. Here is a description of the main components of this schema:
 
 **Table "Empfehlung" (engl. Recommendation)**
@@ -166,6 +205,7 @@ The GAEP application uses a structured SQL database to store and manage medical 
 The recommendation table links specific recommendations to the respective topics and provides both numerical and text-based descriptions.
 
 **Table "Empfehlungsdetail" (engl. detail)**
+
 * ID: Unique identification number.
 * Leitlinie (engl. Guideline): Reference to the guideline to which the detail belongs.
 * Position: The specific position of the detail within the guideline.
@@ -175,6 +215,7 @@ The recommendation table links specific recommendations to the respective topics
 The Recommendation Detail table stores detailed information on specific aspects of a recommendation and also contains visual materials to support the text-based content.
 
 **Table "quelle" (engl. source)**
+
 * ID: Unique identification number.
 * Leitlinie (engl. Guideline): Reference to the guideline.
 * Number: The number or identifier of the source within the guideline.
@@ -190,6 +231,7 @@ The relationships between the tables are defined by foreign keys that allow inte
 ![image](https://github.com/dozwa/gaep/blob/main/grafics/GAEP_db.png)
 
 ## Description of the gaep_server.py script
+
 The gaep_server.py script serves as a backend server for the GAEP application. The script uses Flask as a web framework to provide a REST API and integrates various technologies and libraries for data processing and searching.
 
 **Main functions of the script**
@@ -209,9 +251,9 @@ The gaep_server.py script serves as a backend server for the GAEP application. T
 * Search and response logic: The script provides functions to optimize queries, search the database for relevant content, classify and analyze the results, and finally return a summarized response based on the queries.
 * Complex data processing: User queries are processed and optimized using LangChain technology and OpenAI models. The results are classified and summarized to provide accurate and relevant information to end users.
 
-## Description of die Mendix App
+## Description of the Mendix App
 
-The following documentation will be structured based on the used journey through the app.
+The following documentation will be structured based on the user journey through the app.
 
 ### Prerequisites
 The app has been developed in [Mendix Studio Pro Version 10.6.3](https://marketplace.mendix.com/link/studiopro/). To use the application you will need to create a Mendix account and [download](https://marketplace.mendix.com/link/studiopro/) the correct version of Studio Pro.
@@ -245,6 +287,7 @@ The names of these elements will also include the suffix "Phone", "PC" or "Table
 Upon opening the app the default home page is a disclaimer found under: `[base_functionality > Disclaimer]` Here the user needs to check a few switches, such as a cookie agreement, to proceed to the app.
 
 **Implementation**
+
 **`[App 'gaep_0_4' > Navigation]`**
 Here you can edit the default home page, currently set to the microflow `disclaimer_open`.
 
@@ -257,6 +300,7 @@ The "disclaimer_close" microflow deletes all >Einwilligung< objects and calls th
 Additional information about the project is found in the "disclaimer_PopUp" page, called by the textbutton under the second switch.
 
 ### App // gaep_input
+
 **Feature**
 The input page is the functional homepage of the app. Here the user can enter a question and select a guideline, as well as the complexity of the generated answer. Subsequently they can send a request to the server which will generate an answer based on the user input.
 
@@ -277,11 +321,14 @@ Upon pressing enter inside the user_question input field or upon clicking the se
 Inside the microflow, two decision widgets check whether the user_question attribute and the guideline attribute and empty. If they are not, the microflow calls a REST service. In that process, the data from the >Request< object will be sent to a remote server and mendix will receive a response that generates a >Response< object. The parameters of the request and response are configured in the "gaep.Import_mapping" and "gaep.Export_mapping" files.
 Finally, the microflow will open the "gaep_output" page.
 
-*Configuring server routing:*
-Within the "Call REST Service" action, all routing parameters can be configured. Specifically, under General > Location, you can input the server address, and under HTTP Headers > Authentication, you can enter the username and password for server access.
+**Configuring server routing:**
+
+Within the "Call REST Service" action, all routing parameters can be configured. Specifically, under `General > Location`, you can input the server address, and under `HTTP Headers > Authentication`, you can enter the username and password for server access.
 
 ### App // gaep_output
+
 **Feature**
+
 On the output page the user will find 4 sections:
 1. The *app logo*, leading back to the input page
 2. A *top section*, containing the user question and the synoptic answer, generated by the AI.
@@ -289,6 +336,7 @@ On the output page the user will find 4 sections:
 4. A list of all *data sets*, used to answer the user question. These contain a reference from the original guideline, as well as associated information and an AI-generated summary of the detailed data, linked to the reference.
 
 **Implementation**
+
 This feature is implemented in the **`gaep`** module.
 
 The top section (*headGrid[device]*) is structured similarly to the *inputGridPC* on "gaep_input". Here however, using a data view, certain attribute values from the >Response< object, generated in the `ACT_gaep_output_open` microflow, are displayed. Some metadata like the Request_id is displayed on a seperate popup page ("gaep_output_metadata").
@@ -304,10 +352,13 @@ Next to the source button another button opens the pdf file of the original guid
 This list view has its on click option configured to show the "details" popup page.
 
 ### App // details
+
 **Feature**
+
 The dynamically generated detail pages contain all relevant information linked to a specific reference. This information is mostly detailed texts and graphics from the original guideline, arranged in blocks for an easy overview.
 
 **Implementation**
+
 This feature is implemented in the **`gaep`** module.
 
 At the top of the page you will find a *replica of a list view content block* from the "gaep_output" page. The data from the specific >Reference< object is accessed through a page parameter and a data veiw widget.
@@ -318,10 +369,13 @@ The images are stored as a string in base64 format. To display the images the "B
 Each list view entry contains a button to open a "sources_details" page, listing all sources, referenced in the corresponding >Detail< object. The popup page is identical to the "sources_reference" page, with the only exception being a different page parameter and data source on the list view widget.
 
 ### App // search_history
+
 **Feature**
+
 Through the navigation bar the user can access a search history, listing all search requests chronologically. From this page the user can access "gaep_output" pages for each request.
 
 **Implementation**
+
 The search history is implemented utilizing a simple list view with the >Response< entity as a data source. The list view content contains a delete button to allow for easy deletion of a >Response< object. Below a text widget, displaying the user question, another text widget contains information about the complexity of the generated answer. To display a comprehensive text, instead of the boolean value stored in the >Request/Detail< attribute, an expression is used:
 
     if $currentObject/gaep.Request_Response/gaep.Request/Detail = true then 'detaillierte' else if $currentObject/gaep.Request_Response/gaep.Request/Detail = false then 'kurze' else empty
